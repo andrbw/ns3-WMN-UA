@@ -569,6 +569,9 @@ class Txop : public Object
     Ptr<WifiMacQueue> m_queue;                     //!< the wifi MAC queue
     Ptr<MacTxMiddle> m_txMiddle;                   //!< the MacTxMiddle
     Ptr<WifiMac> m_mac;                            //!< the wifi MAC
+    bool m_disableBackoff{false};                  //!< whether backoff generation is suppressed,
+                                                   //!< so that MAC can drive the frame exchange manager
+                                                   //!< itself without DCF procedures interfering
     Ptr<UniformRandomVariable> m_rng;              //!< the random stream
     UniformRandomBitGenerator m_shuffleLinkIdsGen; //!< random number generator to shuffle link IDs
 

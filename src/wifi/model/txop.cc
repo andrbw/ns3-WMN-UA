@@ -106,6 +106,12 @@ Txop::GetTypeId()
                 MakeAttributeContainerAccessor<TimeValue>(&Txop::SetTxopLimits,
                                                           &Txop::GetTxopLimits),
                 MakeAttributeContainerChecker<TimeValue>(MakeTimeChecker()))
+            .AddAttribute("DisableBackoff",
+                          "If true, no backoff is generated. Can be used by MAC to "
+                          "grant the channel based on a different logic.",
+                          BooleanValue(false),
+                          MakeBooleanAccessor(&Txop::m_disableBackoff),
+                          MakeBooleanChecker())
             .AddAttribute("Queue",
                           "The WifiMacQueue object",
                           PointerValue(),
@@ -766,6 +772,10 @@ Txop::RequestAccess(uint8_t linkId)
 void
 Txop::GenerateBackoff(uint8_t linkId)
 {
+    if (m_disableBackoff)
+    {
+        return;
+    }
     uint32_t backoff = m_rng->GetInteger(0, GetCw(linkId));
     NS_LOG_FUNCTION(this << linkId << backoff);
     m_backoffTrace(backoff, linkId);
