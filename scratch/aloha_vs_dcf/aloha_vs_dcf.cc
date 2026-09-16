@@ -27,6 +27,14 @@
 #include "ns3/neighbor-cache-helper.h"
 #include "ns3/multi-model-spectrum-channel.h"
 
+// WiFiViz lives in an optional contrib module (contrib/wifiviz)
+// alongside ns-3. Pull it in only when its header is available.
+// The lab builds even when the module is missing.
+#if __has_include("ns3/wifiviz.h")
+#include "ns3/wifiviz.h"
+#define HAS_WIFIVIZ 1
+#endif
+
 #include <iostream>
 #include <fstream>
 #include <vector>
@@ -69,6 +77,13 @@ int main (int argc, char *argv[])
   bool isDcf = false;
   bool useAck = false;
 
+#ifdef HAS_WIFIVIZ
+  bool enableViz = true;
+#else
+  bool enableViz = false;
+#endif
+  bool launchViewer = false;
+
   CommandLine cmd;
 
   cmd.AddValue ("simTime", "simulation time", simTime);
@@ -82,6 +97,11 @@ int main (int argc, char *argv[])
 
   cmd.AddValue ("collectPcap", "turn on PCAP traces collection", collectPcap);
   cmd.AddValue ("outFileName", "out file name", outFileName);
+
+  cmd.AddValue ("enableViz", "collect WiFiViz records for the timeline viewer "
+                             "(requires the wifiviz module in contrib)", enableViz);
+  cmd.AddValue ("launchViewer", "start the WiFiViz viewer together with the run "
+                                "(requires the wifiviz module in contrib)", launchViewer);
 
   cmd.Parse (argc, argv);
 
@@ -186,6 +206,18 @@ int main (int argc, char *argv[])
     {
       wifiPhy.EnablePcap ("aloha_vs_dcf", devices);
     }
+
+  //Record on every device.
+#ifdef HAS_WIFIVIZ
+  Ptr<SniffUtils> viz =
+    WiFiVizHelper::MaybeEnableVisualizer (enableViz, devices, simTime.GetSeconds (), launchViewer);
+#else
+  if (enableViz || launchViewer)
+    {
+      std::cerr << "WiFiViz is not available: clone the wifiviz module into contrib/ and "
+                   "re-run ./ns3 configure to use --enableViz/--launchViewer" << std::endl;
+    }
+#endif
 
   Simulator::Stop(simTime);
 
