@@ -6,12 +6,15 @@
 #include "udp-echo-client.h"
 
 #include "ns3/address-utils.h"
+#include "ns3/boolean.h"
 #include "ns3/log.h"
 #include "ns3/nstime.h"
 #include "ns3/packet.h"
+#include "ns3/pointer.h"
 #include "ns3/simulator.h"
 #include "ns3/socket-factory.h"
 #include "ns3/socket.h"
+#include "ns3/string.h"
 #include "ns3/trace-source-accessor.h"
 #include "ns3/uinteger.h"
 
@@ -67,6 +70,18 @@ UdpEchoClient::GetTypeId()
                 UintegerValue(100),
                 MakeUintegerAccessor(&UdpEchoClient::SetDataSize, &UdpEchoClient::GetDataSize),
                 MakeUintegerChecker<uint32_t>())
+            .AddAttribute("EnableRandomInterval",
+                          "If true, the inter-packet interval is drawn from "
+                          "RandomIntervalVariable instead of being fixed to Interval",
+                          BooleanValue(false),
+                          MakeBooleanAccessor(&UdpEchoClient::m_enableRandomInterval),
+                          MakeBooleanChecker())
+            .AddAttribute("RandomIntervalVariable",
+                          "Random distribution of the inter-packet interval, in seconds. "
+                          "Only used when EnableRandomInterval is true.",
+                          StringValue("ns3::ConstantRandomVariable[Constant=1.0]"),
+                          MakePointerAccessor(&UdpEchoClient::m_randomIntervalVar),
+                          MakePointerChecker<RandomVariableStream>())
             .AddTraceSource("Rx",
                             "A packet has been received",
                             MakeTraceSourceAccessor(&UdpEchoClient::m_rxTrace),
@@ -278,6 +293,16 @@ UdpEchoClient::ScheduleTransmit(Time dt)
     m_sendEvent = Simulator::Schedule(dt, &UdpEchoClient::Send, this);
 }
 
+Time
+UdpEchoClient::GetInterval()
+{
+    if (m_enableRandomInterval)
+    {
+        return Seconds(m_randomIntervalVar->GetValue());
+    }
+    return m_interval;
+}
+
 void
 UdpEchoClient::Send()
 {
@@ -334,7 +359,7 @@ UdpEchoClient::Send()
 
     if (m_sent < m_count || m_count == 0)
     {
-        ScheduleTransmit(m_interval);
+        ScheduleTransmit(GetInterval());
     }
 }
 

@@ -13,6 +13,7 @@
 #include "ns3/event-id.h"
 #include "ns3/ipv4-address.h"
 #include "ns3/ptr.h"
+#include "ns3/random-variable-stream.h"
 #include "ns3/traced-callback.h"
 
 #include <optional>
@@ -153,6 +154,13 @@ class UdpEchoClient : public SourceApplication
     void Send();
 
     /**
+     * @brief Time to wait before the next packet: either the fixed Interval or a draw from
+     *        RandomIntervalVariable, depending on EnableRandomInterval.
+     * @return the inter-packet interval
+     */
+    Time GetInterval();
+
+    /**
      * @brief Handle a packet reception.
      *
      * This function is called by lower layers.
@@ -171,6 +179,11 @@ class UdpEchoClient : public SourceApplication
     uint32_t m_sent{0};                 //!< Counter for sent packets
     std::optional<uint16_t> m_peerPort; //!< Remote peer port (deprecated) // NS_DEPRECATED_3_44
     EventId m_sendEvent;                //!< Event to send the next packet
+
+    bool m_enableRandomInterval{false}; //!< If true, draw the interval from
+                                        //!< m_randomIntervalVar instead of using m_interval
+    Ptr<RandomVariableStream> m_randomIntervalVar; //!< Distribution of the inter-packet
+                                                   //!< interval, in seconds
 
     /// Callbacks for tracing the packet Rx events
     TracedCallback<Ptr<const Packet>> m_rxTrace;
