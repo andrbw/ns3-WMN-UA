@@ -5,4 +5,5 @@
 !nested-subdir/
 !subdir/
 !scratch-simulator.cc
+!aloha_vs_dcf/
 !CMakeLists.txt
