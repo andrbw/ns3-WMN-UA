@@ -1188,7 +1188,9 @@ WifiRemoteStationManager::DoGetMpdusToDropOnTxFailure(WifiRemoteStation* station
 
     for (const auto& mpdu : *PeekPointer(psdu))
     {
-        if (mpdu->GetRetryCount() == m_wifiMac->GetFrameRetryLimit())
+        // ">=" rather than "==": does not break legacy code and allows
+        // ALOHA-like MAC to take care of re-transmissions and by-pass DCF logic
+        if (mpdu->GetRetryCount() >= m_wifiMac->GetFrameRetryLimit())
         {
             // this MPDU needs to be dropped
             mpdusToDrop.push_back(mpdu);
