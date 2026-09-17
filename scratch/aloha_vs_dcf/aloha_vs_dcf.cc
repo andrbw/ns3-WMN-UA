@@ -77,11 +77,7 @@ int main (int argc, char *argv[])
   bool isDcf = false;
   bool useAck = false;
 
-#ifdef HAS_WIFIVIZ
-  bool enableViz = true;
-#else
   bool enableViz = false;
-#endif
   bool launchViewer = false;
 
   CommandLine cmd;
