@@ -6,4 +6,5 @@
 !subdir/
 !scratch-simulator.cc
 !aloha_vs_dcf/
+!ping-example/
 !CMakeLists.txt
