@@ -1,5 +1,5 @@
 /* -*-  Mode: C++; c-file-style: "gnu"; indent-tabs-mode:nil; -*- */
-/* Experiment to compare the performance of Aloha and DCF protocols
+/* Experiment to compare the performance of Aloha, CSMA and DCF protocols
  * Network topology:
  * Ad-hoc wireless (Wi-Fi based) network with (numOfStations+1) nodes. One node has packet sink
  * application installed that receives packets from UDP echo client application installed on each
@@ -74,7 +74,7 @@ int main (int argc, char *argv[])
   bool collectPcap = true;
   std::string outFileName = "result.txt";
 
-  bool isDcf = false;
+  std::string protocol = "aloha";
   bool useAck = false;
 
   bool enableViz = false;
@@ -87,9 +87,9 @@ int main (int argc, char *argv[])
   cmd.AddValue ("numOfStations", "number of client stations", numOfStations);
   cmd.AddValue ("packetSize", "size of application payload, bytes", packetSize);
   cmd.AddValue ("interval", "average interval between packets", packetInterval);
-  cmd.AddValue ("isDcf", "if true - DCF, if false - Aloha", isDcf);
-  cmd.AddValue ("useAck", "if true - Aloha frames are acknowledged and retransmitted after a "
-                          "random delay (ignored if isDcf is true)", useAck);
+  cmd.AddValue ("protocol", "MAC protocol: aloha, csma or dcf", protocol);
+  cmd.AddValue ("useAck", "if true - Aloha/CSMA frames are acknowledged and retransmitted after a "
+                          "random delay (ignored if protocol is dcf)", useAck);
 
   cmd.AddValue ("collectPcap", "turn on PCAP traces collection", collectPcap);
   cmd.AddValue ("outFileName", "out file name", outFileName);
@@ -101,6 +101,9 @@ int main (int argc, char *argv[])
 
   cmd.Parse (argc, argv);
 
+  NS_ABORT_MSG_UNLESS (protocol == "aloha" || protocol == "csma" || protocol == "dcf",
+                       "Unknown protocol '" << protocol << "', expected aloha, csma or dcf");
+
   // disable fragmentation for frames below 2200 bytes
   Config::SetDefault ("ns3::WifiRemoteStationManager::FragmentationThreshold", StringValue ("2200"));
   // turn off fragmentation at IP layer
@@ -108,13 +111,15 @@ int main (int argc, char *argv[])
   // turn off RTS/CTS for frames below 2200 bytes
   Config::SetDefault ("ns3::WifiRemoteStationManager::RtsCtsThreshold", StringValue ("2200"));
 
-  //Allow only one transmission attempt per frame at the Wi-Fi level. With Aloha
+  //Allow only one transmission attempt per frame at the Wi-Fi level. With Aloha/CSMA
   //acknowledgements enabled, this makes the frame exchange manager report a missed Ack right
   //away, so that retransmissions are scheduled by AdhocAlohaMac (after a random delay) rather
   //than by the DCF.
   Config::SetDefault ("ns3::WifiMac::FrameRetryLimit", UintegerValue (1));
 
-  if (!isDcf)
+  // Aloha and CSMA run their own channel access procedure in the MAC high, so the DCF
+  // backoff is disabled.
+  if (protocol != "dcf")
     {
       Config::SetDefault ("ns3::Txop::DisableBackoff", BooleanValue (true));
     }
@@ -138,14 +143,14 @@ int main (int argc, char *argv[])
   wifiPhy.SetChannel (channel);
 
   WifiMacHelper wifiMac;
-  // Set adhoc mode and select DCF/EDCA
-  if (isDcf)
+  // Set adhoc mode and select the MAC protocol
+  if (protocol == "dcf")
     {
       wifiMac.SetType ("ns3::AdhocWifiMac", "QosSupported", BooleanValue (false));
     }
   else
     {
-      wifiMac.SetType ("ns3::AdhocAlohaMac",
+      wifiMac.SetType (protocol == "csma" ? "ns3::AdhocCsmaMac" : "ns3::AdhocAlohaMac",
                        "QosSupported", BooleanValue (false),
                        "EnableAck", BooleanValue (useAck));
     }

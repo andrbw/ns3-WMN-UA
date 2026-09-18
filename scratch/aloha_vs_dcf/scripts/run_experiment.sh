@@ -10,7 +10,7 @@ dirs=(noack ack)
 for i in ${!modes[@]}; do
   for run in $(seq 1 5); do
     for n in $(seq 1 10 100); do
-      ./../../../ns3 run --no-build --cwd=$PWD "aloha_vs_dcf --RngRun=$run --numOfStations=$n --isDcf=false --useAck=${modes[$i]} --collectPcap=false --outFileName=results/${dirs[$i]}/pure-$run-$n.txt"
+      ./../../../ns3 run --no-build --cwd=$PWD "aloha_vs_dcf --RngRun=$run --numOfStations=$n --protocol=aloha --useAck=${modes[$i]} --collectPcap=false --outFileName=results/${dirs[$i]}/pure-$run-$n.txt"
     done
   done
 done
