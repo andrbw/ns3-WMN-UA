@@ -5,6 +5,6 @@
 !nested-subdir/
 !subdir/
 !scratch-simulator.cc
-!aloha_vs_dcf/
+!channel_access_lab/
 !ping-example/
 !CMakeLists.txt

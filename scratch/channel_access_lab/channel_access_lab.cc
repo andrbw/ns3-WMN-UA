@@ -42,7 +42,7 @@
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("AlohaVsDcf");
+NS_LOG_COMPONENT_DEFINE ("ChannelAccessLab");
 
 uint32_t RcvPktCount = 0;
 
@@ -205,7 +205,7 @@ int main (int argc, char *argv[])
   // Tracing
   if (collectPcap)
     {
-      wifiPhy.EnablePcap ("aloha_vs_dcf", devices);
+      wifiPhy.EnablePcap ("channel_access_lab", devices);
     }
 
   //Record on every device.
