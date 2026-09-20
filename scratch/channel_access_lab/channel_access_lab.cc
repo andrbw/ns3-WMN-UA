@@ -14,7 +14,7 @@
  * Output:
  * File 'result.txt' located in the working directory.
  * File contents: <numOfStations>\t<throughput, Mbps>
- * Default contents: 1\t0.0758333
+ * Default contents: 1\t0.082
  */
 
 #include "ns3/core-module.h"
