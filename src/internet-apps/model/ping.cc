@@ -224,7 +224,7 @@ Ping::Receive(Ptr<Socket> socket)
                         m_sent.at(echo.GetSequenceNumber()).acked = true;
                     }
 
-                    m_avgRtt.Update(delta.GetMilliSeconds());
+                    m_avgRtt.Update(delta.GetSeconds() * 1000);
                     m_rttTrace(echo.GetSequenceNumber(), delta);
 
                     if (m_verbose == VerboseMode::VERBOSE)
@@ -323,7 +323,7 @@ Ping::Receive(Ptr<Socket> socket)
                         m_sent.at(echo.GetSeq()).acked = true;
                     }
 
-                    m_avgRtt.Update(delta.GetMilliSeconds());
+                    m_avgRtt.Update(delta.GetSeconds() * 1000);
                     m_rttTrace(echo.GetSeq(), delta);
 
                     if (m_verbose == VerboseMode::VERBOSE)
@@ -505,7 +505,7 @@ Ping::Send()
     // We have sent all the requests. Schedule a shutdown after the linger time
     if (m_count > 0 && m_seq == m_count)
     {
-        Time lingerTime = m_avgRtt.Count() > 0 ? MilliSeconds(2 * m_avgRtt.Max()) : m_timeout;
+        Time lingerTime = m_avgRtt.Count() > 0 ? Seconds(2 * m_avgRtt.Max() / 1000) : m_timeout;
         Simulator::Schedule(lingerTime, &Ping::StopApplication, this);
     }
 }
