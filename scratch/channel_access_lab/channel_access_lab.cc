@@ -140,6 +140,8 @@ int main (int argc, char *argv[])
   // the lab was calibrated against the NIST error rate model, not the ns-3 default
   wifiPhy.SetErrorRateModel ("ns3::NistErrorRateModel");
   Ptr<MultiModelSpectrumChannel> channel = CreateObject<MultiModelSpectrumChannel>();
+  Ptr<FriisPropagationLossModel> lossModel = CreateObject<FriisPropagationLossModel> ();
+  channel->AddPropagationLossModel (lossModel);
   wifiPhy.SetChannel (channel);
 
   WifiMacHelper wifiMac;
