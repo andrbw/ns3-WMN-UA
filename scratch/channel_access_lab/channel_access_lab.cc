@@ -111,17 +111,17 @@ int main (int argc, char *argv[])
   // turn off RTS/CTS for frames below 2200 bytes
   Config::SetDefault ("ns3::WifiRemoteStationManager::RtsCtsThreshold", StringValue ("2200"));
 
-  //Allow only one transmission attempt per frame at the Wi-Fi level. With Aloha/CSMA
-  //acknowledgements enabled, this makes the frame exchange manager report a missed Ack right
-  //away, so that retransmissions are scheduled by AdhocAlohaMac (after a random delay) rather
-  //than by the DCF.
-  Config::SetDefault ("ns3::WifiMac::FrameRetryLimit", UintegerValue (1));
-
   // Aloha and CSMA run their own channel access procedure in the MAC high, so the DCF
   // backoff is disabled.
   if (protocol != "dcf")
     {
       Config::SetDefault ("ns3::Txop::DisableBackoff", BooleanValue (true));
+
+      //Allow only one transmission attempt per frame at the Wi-Fi level. With Aloha/CSMA
+      //acknowledgements enabled, this makes the frame exchange manager report a missed Ack right
+      //away, so that retransmissions are scheduled by AdhocAlohaMac/AdhocCsmaMac (after a random delay)
+      //rather than by the DCF.
+      Config::SetDefault ("ns3::WifiMac::FrameRetryLimit", UintegerValue (1));
     }
 
   NodeContainer serverStation;
