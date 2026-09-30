@@ -49,7 +49,7 @@ AdhocAlohaMac::GetTypeId()
             .AddAttribute("MaxRetries",
                           "Maximum number of retransmissions of a frame before it is given up "
                           "on. Only used when EnableAck is true.",
-                          UintegerValue(4),
+                          UintegerValue(6),
                           MakeUintegerAccessor(&AdhocAlohaMac::m_maxRetries),
                           MakeUintegerChecker<uint32_t>())
             .AddAttribute("RetransmissionDelay",
